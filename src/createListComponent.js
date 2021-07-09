@@ -135,6 +135,9 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 
+/**
+ * An HOC
+ */
 export default function createListComponent({
   getItemOffset,
   getEstimatedTotalSize,
@@ -199,6 +202,14 @@ export default function createListComponent({
     scrollTo(scrollOffset: number): void {
       scrollOffset = Math.max(0, scrollOffset);
 
+      /**
+       * That function will receive the previous state as the first argument,
+       * and the props at the time the update is applied as the second argument
+       * The second parameter to setState() is an optional callback function that
+       * will be executed once setState is completed and the component is re-rendered.
+       * Generally we recommend using componentDidUpdate() for such logic instead.
+       * setState is a request, react may delay the updates.
+       */
       this.setState(prevState => {
         if (prevState.scrollOffset === scrollOffset) {
           return null;
@@ -216,6 +227,7 @@ export default function createListComponent({
       const { itemCount } = this.props;
       const { scrollOffset } = this.state;
 
+      // crop index to be within [0, itemCount)
       index = Math.max(0, Math.min(index, itemCount - 1));
 
       this.scrollTo(
@@ -229,12 +241,15 @@ export default function createListComponent({
       );
     }
 
+    // after mounted, slides to the initial scrollOffset
     componentDidMount() {
       const { direction, initialScrollOffset, layout } = this.props;
 
       if (typeof initialScrollOffset === 'number' && this._outerRef != null) {
         const outerRef = ((this._outerRef: any): HTMLElement);
         // TODO Deprecate direction "horizontal"
+        // The Element.scrollLeft property gets or sets the number of pixels that an element's
+        // content is scrolled from its left edge.
         if (direction === 'horizontal' || layout === 'horizontal') {
           outerRef.scrollLeft = initialScrollOffset;
         } else {
@@ -340,6 +355,7 @@ export default function createListComponent({
         this._instanceProps
       );
 
+      // outerTagName is deprecated
       return createElement(
         outerElementType || outerTagName || 'div',
         {
@@ -409,6 +425,7 @@ export default function createListComponent({
     );
 
     _callPropsCallbacks() {
+      // onItemsRendered: Called when the range of items rendered by the list changes.
       if (typeof this.props.onItemsRendered === 'function') {
         const { itemCount } = this.props;
         if (itemCount > 0) {
@@ -427,6 +444,8 @@ export default function createListComponent({
         }
       }
 
+      // onScroll: Called when the list scroll positions changes,
+      // as a result of user scrolling or scroll-to method calls.
       if (typeof this.props.onScroll === 'function') {
         const {
           scrollDirection,
@@ -454,7 +473,6 @@ export default function createListComponent({
         shouldResetStyleCacheOnItemSizeChange && layout,
         shouldResetStyleCacheOnItemSizeChange && direction
       );
-
       let style;
       if (itemStyleCache.hasOwnProperty(index)) {
         style = itemStyleCache[index];
@@ -485,6 +503,7 @@ export default function createListComponent({
     _getItemStyleCache = memoizeOne((_: any, __: any, ___: any) => ({}));
 
     _getRangeToRender(): [number, number, number, number] {
+      // The number of items (rows or columns) to render outside of the visible area.
       const { itemCount, overscanCount } = this.props;
       const { isScrolling, scrollDirection, scrollOffset } = this.state;
 

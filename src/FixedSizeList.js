@@ -23,14 +23,32 @@ const FixedSizeList = createListComponent({
     // TODO Deprecate direction "horizontal"
     const isHorizontal = direction === 'horizontal' || layout === 'horizontal';
     const size = (((isHorizontal ? width : height): any): number);
+
+    /**
+     * the max possible offset for all the items.
+     * Note that the offset of the last item should be the same with all those last
+     * items that can reside in the same window with the last item.
+     * When the bottom line of the last item coincides with the top line of the
+     * window, the offset is itemCount * itemSize, so when the bottom line of the
+     * last item coincides with the bottom line of the window (as should it),
+     * the offset should be subtracted with size.
+     */
     const lastItemOffset = Math.max(
       0,
       itemCount * ((itemSize: any): number) - size
     );
+
+    /**
+     * when the top line of the item coincides with that of the window
+     */
     const maxOffset = Math.min(
       lastItemOffset,
       index * ((itemSize: any): number)
     );
+
+    /**
+     * when the bottom line of the item coincides with that of the window
+     */
     const minOffset = Math.max(
       0,
       index * ((itemSize: any): number) - size + ((itemSize: any): number)
@@ -78,6 +96,9 @@ const FixedSizeList = createListComponent({
     }
   },
 
+  /**
+   * offset: offset to the start of the list.
+   */
   getStartIndexForOffset: (
     { itemCount, itemSize }: Props<any>,
     offset: number
@@ -87,6 +108,9 @@ const FixedSizeList = createListComponent({
       Math.min(itemCount - 1, Math.floor(offset / ((itemSize: any): number)))
     ),
 
+  /**
+   * startIndex is the index of the item residing on the top of the current window
+   */
   getStopIndexForStartIndex: (
     { direction, height, itemCount, itemSize, layout, width }: Props<any>,
     startIndex: number,

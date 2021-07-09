@@ -298,7 +298,7 @@ const VariableSizeList = createListComponent({
     return instanceProps;
   },
 
-  shouldResetStyleCacheOnItemSizeChange: false,
+  shouldResetStyleCacheOnItemSizeChange: true,
 
   validateProps: ({ itemSize }: Props<any>): void => {
     if (process.env.NODE_ENV !== 'production') {
